@@ -19,7 +19,17 @@ var expect = require('chai').expect;
 // expect violates this jshint thing a lot, so we just suppress it
 /* jshint expr: true */
 
-var apiclient = require('../lib/index.js');
+var hakken = require('hakken')(
+  {
+    host: 'localhost:20000',
+    heartbeatInterval: 1000,
+    pollInterval: 1000,
+    missedHeartbeatsAllowed: 3
+  }
+);
+var hakkenServer = hakken.server;
+var hakkenClient = hakken.client.make();
+
 
 function buildRequest(tok) {
   return {
@@ -34,6 +44,36 @@ function buildResponse() {
 }
 
 describe('user-api-client:', function () {
+  var apiclient = null;
+
+  before(function(done){
+    hakkenServer.makeSimple('localhost', '20000').start();
+
+    // Setup and start user-api here.
+
+    setTimeout(
+      function(){
+        hakkenClient.start(function(err){
+          if (err != null) {
+            throw err;
+          }
+
+          var watch = hakkenClient.watch('user-api');
+          watch.start();
+
+          apiclient = require('../lib/user-api-client.js')(
+            {
+              serverName: 'testServer',
+              serverSecret: '1234'
+            },
+            watch
+          );
+
+          setTimeout(done, 1000);
+        })
+      }, 1000);
+  });
+
   describe('basics:', function () {
     it('should have an app', function () {
       expect(apiclient).to.exist;
