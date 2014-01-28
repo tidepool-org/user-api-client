@@ -21,13 +21,12 @@ var expect = require('chai').expect;
 
 var hakken = require('hakken')(
   {
-    host: 'localhost:20000',
+    host: 'localhost:8000',
     heartbeatInterval: 1000,
     pollInterval: 1000,
     missedHeartbeatsAllowed: 3
   }
 );
-var hakkenServer = hakken.server;
 var hakkenClient = hakken.client.make();
 
 
@@ -40,17 +39,15 @@ function buildRequest(tok) {
 }
 
 function buildResponse() {
-  return {};
+  return {
+    send: function() {}
+  };
 }
 
-describe.skip('user-api-client:', function () {
+describe('user-api-client-local:', function () {
   var apiclient = null;
 
   before(function(done){
-    hakkenServer.makeSimple('localhost', '20000').start();
-
-    // Setup and start user-api here.
-
     setTimeout(
       function(){
         hakkenClient.start(function(err){
@@ -89,9 +86,8 @@ describe.skip('user-api-client:', function () {
   describe('simple test', function () {
 
     it('should be callable', function (done) {
-      apiclient.checkToken(buildRequest('123.abc.4342'), buildResponse(), function(err, result) {
+      apiclient.checkToken(buildRequest('123.abc.4342'), buildResponse(), function(err) {
         expect(err).to.not.exist;
-        expect(result).to.exist;
         done();
       });
     });
