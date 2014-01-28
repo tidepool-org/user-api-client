@@ -1,0 +1,34 @@
+{
+  "name": "user-api-client",
+  "version": "0.0.1",
+  "description": "An npm library to make it easy to use the user-api.",
+  "keywords": [
+    "tidepool, user-api"
+  ],
+  "homepage": "https://github.com/tidepool-org/user-api-client",
+  "bugs": "https://github.com/tidepool-org/user-api-client/issues",
+  "license": "BSD-2-Clause",
+  "author": {
+    "name": "Kent Quirk",
+    "email": "kent@tidepool.org",
+    "url": "https://github.com/kentquirk"
+  },
+  "contributors": [],
+  "files": [
+    "lib"
+  ],
+  "main": "lib/index.js",
+  "repository": "https://github.com/tidepool-org/user-api-client.git",
+  "dependencies": {
+    "restify": "~2.6.1",
+    "lodash": "~2.4.1",
+    "request": "~2.33.0",
+    "hakken": "0.0.9",
+    "async": "~0.2.10"
+  },
+  "devDependencies": {
+    "chai": "~1.8.1",
+    "supertest": "~0.9.0",
+    "mocha": "~1.17.1"
+  }
+}
