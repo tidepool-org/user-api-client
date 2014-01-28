@@ -40,7 +40,7 @@ function buildRequest(tok) {
 
 function buildResponse() {
   return {
-    statuscode: null,
+    statuscode: 200, // if not otherwise specified
     headers: {},
     send: function(x) {
       console.log(x);
@@ -91,11 +91,12 @@ describe('user-api-client-local:', function () {
 
   describe('simple test', function () {
 
+    var servertoken = null;
+
     it('should give a 401 with a garbage token', function (done) {
       var req = buildRequest('123.abc.4342');
       var res = buildResponse();
       apiclient.checkToken(req, res, function(err) {
-        console.log('x', res);
         expect(err).to.not.exist;
         expect(res.statuscode).to.equal(401);
         done();
@@ -106,6 +107,18 @@ describe('user-api-client-local:', function () {
       var req = { headers: {} };
       var res = buildResponse();
       apiclient.getToken(req, res, function(err) {
+        expect(err).to.not.exist;
+        expect(res.statuscode).to.equal(200);
+        expect(res.headers).to.have.property('x-tidepool-session-token');
+        servertoken = res.headers['x-tidepool-session-token'];
+        done();
+      });
+    });
+
+    it('should give a 200 with a real token', function (done) {
+      var req = buildRequest(servertoken);
+      var res = buildResponse();
+      apiclient.checkToken(req, res, function(err) {
         expect(err).to.not.exist;
         expect(res.statuscode).to.equal(200);
         done();
