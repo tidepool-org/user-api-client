@@ -40,7 +40,13 @@ function buildRequest(tok) {
 
 function buildResponse() {
   return {
-    send: function() {}
+    statuscode: null,
+    headers: {},
+    send: function(x) {
+      console.log(x);
+      this.statuscode = x;
+    },
+    header: function(k, v) { this.headers[k] = v; }
   };
 }
 
@@ -51,7 +57,7 @@ describe('user-api-client-local:', function () {
     setTimeout(
       function(){
         hakkenClient.start(function(err){
-          if (err != null) {
+          if (err !== null) {
             throw err;
           }
 
@@ -61,13 +67,13 @@ describe('user-api-client-local:', function () {
           apiclient = require('../lib/user-api-client.js')(
             {
               serverName: 'testServer',
-              serverSecret: '1234'
+              serverSecret: 'This is a shared server secret'
             },
             watch
           );
 
           setTimeout(done, 1000);
-        })
+        });
       }, 1000);
   });
 
@@ -85,9 +91,23 @@ describe('user-api-client-local:', function () {
 
   describe('simple test', function () {
 
-    it('should be callable', function (done) {
-      apiclient.checkToken(buildRequest('123.abc.4342'), buildResponse(), function(err) {
+    it('should give a 401 with a garbage token', function (done) {
+      var req = buildRequest('123.abc.4342');
+      var res = buildResponse();
+      apiclient.checkToken(req, res, function(err) {
+        console.log('x', res);
         expect(err).to.not.exist;
+        expect(res.statuscode).to.equal(401);
+        done();
+      });
+    });
+
+    it('should be able to call getToken and get a useful result', function (done) {
+      var req = { headers: {} };
+      var res = buildResponse();
+      apiclient.getToken(req, res, function(err) {
+        expect(err).to.not.exist;
+        expect(res.statuscode).to.equal(200);
         done();
       });
     });

@@ -49,5 +49,8 @@ module.exports = (function() {
     throw new Error('Must specify a USER_API_SERVICE in your environment.');
   }
 
+  // server name for sessions should probably be the same as the ApiService
+  env.serverName = process.env.SERVER_NAME || env.userApiService;
+
   return env;
 })();

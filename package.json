@@ -23,8 +23,7 @@
     "restify": "~2.6.1",
     "lodash": "~2.4.1",
     "request": "~2.33.0",
-    "hakken": "0.0.9",
-    "async": "~0.2.10"
+    "hakken": "0.0.9"
   },
   "devDependencies": {
     "chai": "~1.8.1",
