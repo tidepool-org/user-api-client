@@ -65,11 +65,13 @@ describe('user-api-client-local:', function () {
           watch.start();
 
           apiclient = require('../lib/user-api-client.js')(
-            {
-              serverName: 'testServer',
-              serverSecret: 'This is a shared server secret'
-            },
-            watch
+            require('../lib/client.js')(
+              {
+                serverName: 'testServer',
+                serverSecret: 'This is a shared server secret'
+              },
+              watch
+            )
           );
 
           setTimeout(done, 1000);
@@ -84,7 +86,7 @@ describe('user-api-client-local:', function () {
     it('should have checkToken method', function () {
       expect(apiclient).to.respondTo('checkToken');
     });
-    it('should have getToken method', function () {
+    it.skip('should have getToken method', function () {
       expect(apiclient).to.respondTo('getToken');
     });
   });
@@ -97,17 +99,17 @@ describe('user-api-client-local:', function () {
       var req = buildRequest('123.abc.4342');
       var res = buildResponse();
       apiclient.checkToken(req, res, function(err) {
-        expect(err).to.not.exist;
+        expect(err).to.equal(false);
         expect(res.statuscode).to.equal(401);
         done();
       });
     });
 
-    it('should be able to call getToken and get a useful result', function (done) {
+    it('should be able to call checkToken and get a useful result', function (done) {
       var req = { headers: {} };
       var res = buildResponse();
-      apiclient.getToken(req, res, function(err) {
-        expect(err).to.not.exist;
+      apiclient.checkToken(req, res, function(err) {
+        expect(err).to.equal(false);
         expect(res.statuscode).to.equal(200);
         expect(res.headers).to.have.property('x-tidepool-session-token');
         servertoken = res.headers['x-tidepool-session-token'];

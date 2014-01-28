@@ -20,7 +20,7 @@
   "main": "lib/index.js",
   "repository": "https://github.com/tidepool-org/user-api-client.git",
   "dependencies": {
-    "restify": "~2.6.1",
+    "amoeba": "0.0.3",
     "lodash": "~2.4.1",
     "request": "~2.33.0",
     "hakken": "0.0.9"
