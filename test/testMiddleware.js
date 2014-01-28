@@ -21,13 +21,12 @@ var expect = require('chai').expect;
 
 var hakken = require('hakken')(
   {
-    host: 'localhost:20000',
+    host: 'localhost:8000',
     heartbeatInterval: 1000,
     pollInterval: 1000,
     missedHeartbeatsAllowed: 3
   }
 );
-var hakkenServer = hakken.server;
 var hakkenClient = hakken.client.make();
 
 
@@ -40,61 +39,58 @@ function buildRequest(tok) {
 }
 
 function buildResponse() {
-  return {};
+  return {
+    statuscode: 200, // if not otherwise specified
+    headers: {},
+    send: function(x) {
+      console.log(x);
+      this.statuscode = x;
+    },
+    header: function(k, v) { this.headers[k] = v; }
+  };
 }
 
-describe.skip('user-api-client:', function () {
-  var apiclient = null;
+describe('middleware.js', function () {
+  var userClientApi = require('../index.js');
+
+  var getTokenMiddleware = null;
 
   before(function(done){
-    hakkenServer.makeSimple('localhost', '20000').start();
-
-    // Setup and start user-api here.
-
     setTimeout(
       function(){
         hakkenClient.start(function(err){
-          if (err != null) {
+          if (err !== null) {
             throw err;
           }
 
           var watch = hakkenClient.watch('user-api');
           watch.start();
 
-          apiclient = require('../lib/user-api-client.js')(
+          getTokenMiddleware = userClientApi.middleware.checkToken(userClientApi.client(
             {
               serverName: 'testServer',
-              serverSecret: '1234'
+              serverSecret: 'This is a shared server secret'
             },
             watch
-          );
+          ));
 
           setTimeout(done, 1000);
-        })
+        });
       }, 1000);
   });
 
-  describe('basics:', function () {
-    it('should have an app', function () {
-      expect(apiclient).to.exist;
-    });
-    it('should have checkToken method', function () {
-      expect(apiclient).to.respondTo('checkToken');
-    });
-    it('should have getToken method', function () {
-      expect(apiclient).to.respondTo('getToken');
-    });
-  });
+  describe.skip('simple test', function () {
 
-  describe('simple test', function () {
+    var servertoken = null;
 
-    it('should be callable', function (done) {
-      apiclient.checkToken(buildRequest('123.abc.4342'), buildResponse(), function(err, result) {
-        expect(err).to.not.exist;
-        expect(result).to.exist;
+    it('should give a 401 with a garbage token', function (done) {
+      var req = buildRequest('123.abc.4342');
+      var res = buildResponse();
+      getTokenMiddleware.checkToken(req, res, function(err) {
+        expect(err).to.equal(false);
+        expect(res.statuscode).to.equal(401);
         done();
       });
     });
-
   });
 });
