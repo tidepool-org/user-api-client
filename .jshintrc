@@ -4,7 +4,16 @@
   // Documentation: http://www.jshint.com/docs/
   "browser": true,
   "esnext": true,
-  "globals": { "process": false, "require": false, "define": false, "console": false, "it": false, "describe": false, "before": false },
+  "eqnull": true,
+  "globals": { 
+    "process": false, 
+    "require": false, 
+    "define": false, 
+    "console": false, 
+    "it": false, 
+    "describe": false, 
+    "before": false 
+  },
   "globalstrict": true,
   "indent": 2,
   "laxcomma": true,
