@@ -13,7 +13,13 @@
     "email": "kent@tidepool.org",
     "url": "https://github.com/kentquirk"
   },
-  "contributors": [],
+  "contributors": [
+    {
+      "name": "Eric Tschetter",
+      "email": "cheddar@tidepool.org",
+      "url": "http://github.com/cheddar"
+    }
+  ],
   "files": [
     "lib",
     "index.js"
