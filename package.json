@@ -1,6 +1,6 @@
 {
   "name": "user-api-client",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "An npm library to make it easy to use the user-api.",
   "keywords": [
     "tidepool, user-api"
@@ -15,7 +15,8 @@
   },
   "contributors": [],
   "files": [
-    "lib", "index.js"
+    "lib",
+    "index.js"
   ],
   "main": "index.js",
   "repository": "https://github.com/tidepool-org/user-api-client.git",
