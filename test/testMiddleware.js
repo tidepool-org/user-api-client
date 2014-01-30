@@ -51,6 +51,8 @@ function buildResponse() {
 }
 
 describe('middleware.js', function () {
+  // TODO: Test with restify and express both.
+
   var userClientApi = require('../index.js');
 
   var getTokenMiddleware = null;
