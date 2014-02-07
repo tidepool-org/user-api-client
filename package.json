@@ -1,6 +1,6 @@
 {
   "name": "user-api-client",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "An npm library to make it easy to use the user-api.",
   "keywords": [
     "tidepool, user-api"
