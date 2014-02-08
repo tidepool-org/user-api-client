@@ -15,84 +15,202 @@
 
 'use strict';
 
-var expect = require('chai').expect;
+var salinity = require('salinity');
+var expect = salinity.expect;
+var mockableObject = salinity.mockableObject;
+var sinon = salinity.sinon;
 // expect violates this jshint thing a lot, so we just suppress it
 /* jshint expr: true */
 
-var hakken = require('hakken')(
-  {
-    host: 'localhost:8000',
-    heartbeatInterval: 1000,
-    pollInterval: 1000,
-    missedHeartbeatsAllowed: 3
-  }
-);
-var hakkenClient = hakken.client.make();
-
-
-function buildRequest(tok) {
-  return {
-    headers: {
-      'x-tidepool-session-token': tok
-    }
-  };
-}
-
-function buildResponse() {
-  return {
-    statuscode: 200, // if not otherwise specified
-    headers: {},
-    send: function(x) {
-      console.log(x);
-      this.statuscode = x;
-    },
-    header: function(k, v) { this.headers[k] = v; }
-  };
-}
+var middleware = require('../lib/middleware.js');
 
 describe('middleware.js', function () {
-  // TODO: Test with restify and express both.
+  describe('expressify', function () {
+    it('should call the callback on next(\'route\')', function () {
+      var expressified = middleware.expressify(function (req, res, next) {
+        next('route');
+      });
+      var called = false;
+      expressified({}, {}, function (val) {
+        expect(val).equals('route');
+        called = true;
+      });
+      expect(called).to.be.true;
+    });
 
-  var userClientApi = require('../index.js');
-
-  var getTokenMiddleware = null;
-
-  before(function(done){
-    setTimeout(
-      function(){
-        hakkenClient.start(function(err){
-          if (err !== null) {
-            throw err;
-          }
-
-          var watch = hakkenClient.watch('user-api');
-          watch.start();
-
-          getTokenMiddleware = userClientApi.middleware.checkToken(userClientApi.client(
-            {
-              serverName: 'testServer',
-              serverSecret: 'This is a shared server secret'
-            },
-            watch
-          ));
-
-          setTimeout(done, 1000);
-        });
-      }, 1000);
+    it('should not call the callback on next(false)', function () {
+      var expressified = middleware.expressify(function (req, res, next) {
+        next(false);
+      });
+      expressified({}, {}, function (val) {
+        throw new Error('This should not be called');
+      });
+    });
   });
 
-  describe.skip('simple test', function () {
+  describe('checkToken', function () {
+    var userApiClient = mockableObject.make('checkToken');
+    var agent;
+    var errorOnServer = null;
 
-    var servertoken = null;
-
-    it('should give a 401 with a garbage token', function (done) {
-      var req = buildRequest('123.abc.4342');
-      var res = buildResponse();
-      getTokenMiddleware.checkToken(req, res, function(err) {
-        expect(err).to.equal(false);
-        expect(res.statuscode).to.equal(401);
-        done();
+    function checkTokenTests() {
+      it('should return 401 if no token is set', function (done) {
+        agent
+          .get('/')
+          .expect(401)
+          .end(
+          function (err, res) {
+            if (errorOnServer != null) {
+              throw errorOnServer;
+            }
+            done(err);
+          });
       });
+
+      it('should return 500 on some error', function (done) {
+        sinon.stub(userApiClient, 'checkToken').callsArgWith(1, { message: 'something' });
+        agent
+          .get('/')
+          .set('x-tidepool-session-token', '1234')
+          .expect(500)
+          .end(
+          function (err, res) {
+            if (errorOnServer != null) {
+              throw errorOnServer;
+            }
+            done(err);
+          });
+      });
+
+      it('should return the statusCode from the error if one is provided', function (done) {
+        sinon.stub(userApiClient, 'checkToken').callsArgWith(1, { message: 'something', statusCode: 570 });
+        agent
+          .get('/')
+          .set('x-tidepool-session-token', '1234')
+          .expect(570)
+          .end(
+          function (err, res) {
+            if (errorOnServer != null) {
+              throw errorOnServer;
+            }
+            done(err);
+          });
+      });
+
+      it('should return 401 when no error and no user info', function (done) {
+        sinon.stub(userApiClient, 'checkToken').callsArgWith(1, null, null);
+        agent
+          .get('/')
+          .set('x-tidepool-session-token', '1234')
+          .expect(401)
+          .end(
+          function (err, res) {
+            if (errorOnServer != null) {
+              throw errorOnServer;
+            }
+            done(err);
+          });
+      });
+
+      it('should get 200 and pass through _tokendata and _sessionToken when things are good', function (done) {
+        var userData = { some: 'token data' };
+        sinon.stub(userApiClient, 'checkToken').callsArgWith(1, null, userData);
+        agent
+          .get('/')
+          .set('x-tidepool-session-token', '1234')
+          .expect(
+          250,
+          {
+            userData: userData,
+            token: '1234'
+          },
+          function (err) {
+            if (errorOnServer != null) {
+              throw errorOnServer;
+            }
+            expect(userApiClient.checkToken).to.have.been.calledOnce;
+            expect(userApiClient.checkToken).to.have.been.calledWith('1234', sinon.match.func);
+            done(err);
+          }
+        );
+      });
+    }
+
+    describe('restify', function () {
+      var server;
+
+      before(function (done) {
+        server = require('restify').createServer(
+          {
+            name: 'restifyTestServer'
+          }
+        );
+
+        server.get('/', middleware.checkToken(userApiClient), function (req, res, next) {
+          res.send(250, {
+            userData: req._tokendata,
+            token: req._sessionToken
+          });
+          next();
+        });
+        server.on('uncaughtException', function (req, res, route, err) {
+          errorOnServer = err;
+          console.log('\nWOERIOEWJ', err);
+          console.log(err.stack);
+        });
+        server.listen(21001, function (err) {
+          agent = require('supertest')('http://localhost:21001');
+          done(err);
+        });
+      });
+
+      after(function (done) {
+        server.close(done);
+      });
+
+      beforeEach(function () {
+        mockableObject.reset(userApiClient);
+      });
+
+      checkTokenTests();
+    });
+
+    describe('express', function () {
+      var server;
+
+      before(function (done) {
+        var app = require('express')();
+
+        app.get(
+          '/',
+          middleware.expressify(middleware.checkToken(userApiClient)),
+          function (req, res, next) {
+            res.send(250, {
+              userData: req._tokendata,
+              token: req._sessionToken
+            });
+          },
+          function(err, req, res, next){
+            errorOnServer = err;
+          }
+        );
+        server = require('http').createServer(app);
+        server.listen(21001, function (err) {
+          agent = require('supertest')('http://localhost:21001');
+          done(err);
+        });
+      });
+
+      after(function (done) {
+        server.close(done);
+      });
+
+      beforeEach(function () {
+        mockableObject.reset(userApiClient);
+        errorOnServer = null;
+      });
+
+      checkTokenTests();
     });
   });
 });
