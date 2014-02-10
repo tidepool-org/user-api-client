@@ -190,7 +190,7 @@ describe('middleware.js', function () {
               token: req._sessionToken
             });
           },
-          function(err, req, res, next){
+          function (err, req, res, next) {
             errorOnServer = err;
           }
         );
@@ -208,6 +208,236 @@ describe('middleware.js', function () {
       beforeEach(function () {
         mockableObject.reset(userApiClient);
         errorOnServer = null;
+      });
+
+      checkTokenTests();
+    });
+  });
+
+  describe('getMeta', function () {
+    function initDependencyHandler(req, res, next) { return next(); }
+
+    var userApiClient = mockableObject.make('getMetaPair');
+    var agent;
+    var dependencyHandler = initDependencyHandler;
+    var errorOnServer = null;
+
+    function checkTokenTests() {
+      it('should return 401 if no token is set', function (done) {
+        agent
+          .get('/')
+          .expect(401)
+          .end(
+          function (err, res) {
+            if (errorOnServer != null) {
+              throw errorOnServer;
+            }
+            done(err);
+          });
+      });
+
+      it('should return 500 on some error', function (done) {
+        sinon.stub(userApiClient, 'getMetaPair').callsArgWith(1, { message: 'something' });
+        dependencyHandler = function (req, res, next) {
+          req._tokendata = { userid: 1234 };
+          next();
+        };
+        agent
+          .get('/')
+          .expect(500)
+          .end(
+          function (err, res) {
+            if (errorOnServer != null) {
+              throw errorOnServer;
+            }
+            done(err);
+          });
+      });
+
+      it('should return the statusCode from the error if one is provided', function (done) {
+        sinon.stub(userApiClient, 'getMetaPair').callsArgWith(1, { message: 'something', statusCode: 570 });
+        dependencyHandler = function (req, res, next) {
+          req._tokendata = { userid: 1234 };
+          next();
+        };
+        agent
+          .get('/')
+          .expect(570)
+          .end(
+          function (err, res) {
+            if (errorOnServer != null) {
+              throw errorOnServer;
+            }
+            done(err);
+          });
+      });
+
+      it('should return 401 when no error and no user info', function (done) {
+        sinon.stub(userApiClient, 'getMetaPair').callsArgWith(1, null, null);
+        dependencyHandler = function (req, res, next) {
+          req._tokendata = { userid: 1234 };
+          next();
+        };
+        agent
+          .get('/')
+          .expect(401)
+          .end(
+          function (err, res) {
+            if (errorOnServer != null) {
+              throw errorOnServer;
+            }
+            done(err);
+          });
+      });
+
+      it('should get 200 and pass through _metapair when things are good', function (done) {
+        var metaPair = { id: 'some id', hash: 'a hash' };
+        dependencyHandler = function (req, res, next) {
+          req._tokendata = { userid: '1234' };
+          next();
+        };
+        sinon.stub(userApiClient, 'getMetaPair').callsArgWith(1, null, metaPair);
+        agent
+          .get('/')
+          .expect(
+          250,
+          { metapair: metaPair },
+          function (err) {
+            if (errorOnServer != null) {
+              throw errorOnServer;
+            }
+            expect(userApiClient.getMetaPair).to.have.been.calledOnce;
+            expect(userApiClient.getMetaPair).to.have.been.calledWith('1234', sinon.match.func);
+            done(err);
+          }
+        );
+      });
+
+      it('should ignore requested userid but still succeed when not a server token', function (done) {
+        var metaPair = { some: 'token data' };
+        dependencyHandler = function (req, res, next) {
+          req._tokendata = { userid: '5678' };
+          next();
+        };
+        sinon.stub(userApiClient, 'getMetaPair').callsArgWith(1, null, metaPair);
+        agent
+          .get('/')
+          .expect(
+          250,
+          { metapair: metaPair },
+          function (err) {
+            if (errorOnServer != null) {
+              throw errorOnServer;
+            }
+            expect(userApiClient.getMetaPair).to.have.been.calledOnce;
+            expect(userApiClient.getMetaPair).to.have.been.calledWith('5678', sinon.match.func);
+            done(err);
+          }
+        );
+      });
+
+      it('should get pair for whatever userid is requested when provided a server token', function (done) {
+        var metaPair = { some: 'token data' };
+        dependencyHandler = function (req, res, next) {
+          req._tokendata = { userid: '1234', isserver: true };
+          req.params = { userid: 'abcd' };
+          next();
+        };
+        sinon.stub(userApiClient, 'getMetaPair').callsArgWith(1, null, metaPair);
+        agent
+          .get('/')
+          .expect(
+          250,
+          { metapair: metaPair },
+          function (err) {
+            if (errorOnServer != null) {
+              throw errorOnServer;
+            }
+            expect(userApiClient.getMetaPair).to.have.been.calledOnce;
+            expect(userApiClient.getMetaPair).to.have.been.calledWith('abcd', sinon.match.func);
+            done(err);
+          }
+        );
+      });
+    }
+
+    describe('restify', function () {
+      var server;
+
+      before(function (done) {
+        server = require('restify').createServer(
+          {
+            name: 'restifyTestServer'
+          }
+        );
+
+        server.get(
+          '/',
+          function (req, res, next) {
+            dependencyHandler(req, res, next);
+          },
+          middleware.getMetaPair(userApiClient),
+          function (req, res, next) {
+            res.send(250, { metapair: req._metapair });
+            next();
+          }
+        );
+        server.on('uncaughtException', function (req, res, route, err) {
+          errorOnServer = err;
+        });
+        server.listen(21001, function (err) {
+          agent = require('supertest')('http://localhost:21001');
+          done(err);
+        });
+      });
+
+      after(function (done) {
+        server.close(done);
+      });
+
+      beforeEach(function () {
+        mockableObject.reset(userApiClient);
+        dependencyHandler = initDependencyHandler;
+        errorOnServer = null;
+      });
+
+      checkTokenTests();
+    });
+
+    describe('express', function () {
+      var server;
+
+      before(function (done) {
+        var app = require('express')();
+
+        app.get(
+          '/',
+          middleware.expressify(function (req, res, next) {
+            dependencyHandler(req, res, next);
+          }),
+          middleware.expressify(middleware.getMetaPair(userApiClient)),
+          function (req, res) {
+            res.send(250, { metapair: req._metapair });
+          },
+          function (err, req, res, next) {
+            errorOnServer = err;
+          }
+        );
+        server = require('http').createServer(app);
+        server.listen(21001, function (err) {
+          agent = require('supertest')('http://localhost:21001');
+          done(err);
+        });
+      });
+
+      after(function (done) {
+        server.close(done);
+      });
+
+      beforeEach(function () {
+        mockableObject.reset(userApiClient);
+        errorOnServer = null;
+        dependencyHandler = initDependencyHandler;
       });
 
       checkTokenTests();
