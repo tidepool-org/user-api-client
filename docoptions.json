@@ -1,6 +1,6 @@
 {
   "output": "README.md",
-  "files": ["lib/client.js"],
+  "files": ["lib/client.js", "lib/middleware.js"],
   "formats": {
     "Copy": [{
       "pattern": "\\s*(?P<text>.*)",
@@ -11,7 +11,7 @@
     "Function": [
       {
         "pattern": "(?P<funcname>[A-Za-z0-9$_]+)\\s*\\((?P<args>[^\\)]*)\\)",
-        "formatter": "* ```%(funcname)s (%(args)s)```\n"
+        "formatter": "### %(funcname)s\n* ```%(funcname)s (%(args)s)```\n"
       }
     ],
     "_default": [{
@@ -20,7 +20,11 @@
     }],
     "Setup": [{
       "pattern": "(?P<text>.*)",
-      "formatter": "# Setup\n```%(text)s```\n\n"
+      "formatter": "\n## Setup\n```%(text)s```\n\n"
+    }],
+    "Heading": [{
+      "pattern": "\\s*(?P<text>[^ ].*)",
+      "formatter": "\n## %(text)s\n\n"
     }],
     "Params": [{
       "pattern": "(?P<parm>[A-Za-z0-9$_]+)\\s*--\\s*(?P<desc>.*)",
