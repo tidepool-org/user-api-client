@@ -5,6 +5,7 @@ var expect = salinity.expect;
 var sinon = salinity.sinon;
 
 var clientFactory = require('../lib/client.js');
+var httpClient = require('../lib/httpClient.js');
 
 var hostGetter = {
   get: function(){ return [{ protocol: 'http', host: 'billy:808080' }];}
@@ -46,6 +47,11 @@ describe('lib/client.js', function(){
     var request;
     var client;
 
+    beforeEach(function(){
+      request = sinon.stub();
+      client = clientFactory({ serverName: 'billy', serverSecret:'bob' }, hostGetter, httpClient({}, request));
+    });
+
     var serverToken = 'xyz';
     function setupServerTokenCall(callNum) {
       request.onCall(callNum).callsArgWith(1, null, { statusCode: 200, headers: {'x-tidepool-session-token': serverToken } });
@@ -64,11 +70,6 @@ describe('lib/client.js', function(){
         }
       );
     }
-
-    beforeEach(function(){
-      request = sinon.stub();
-      client = clientFactory({ serverName: 'billy', serverSecret:'bob' }, hostGetter, request);
-    });
 
     describe('login', function(){
       it('should call back with error on error', function(done){
