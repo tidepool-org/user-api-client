@@ -57,8 +57,8 @@ describe('lib/client.js', function(){
           url: apiHost + '/serverlogin',
           method: 'POST',
           headers: {
-            'X-Tidepool-Server-Name': 'billy',
-            'X-Tidepool-Server-Secret': 'bob'
+            'x-tidepool-server-name': 'billy',
+            'x-tidepool-server-secret': 'bob'
           },
           rejectUnauthorized: false
         }
@@ -429,8 +429,8 @@ describe('lib/client.js', function(){
               url: apiHost + '/serverlogin',
               method: 'POST',
               headers: {
-                'X-Tidepool-Server-Name': 'billy',
-                'X-Tidepool-Server-Secret': 'bob'
+                'x-tidepool-server-name': 'billy',
+                'x-tidepool-server-secret': 'bob'
               },
               rejectUnauthorized: false
             }
@@ -452,8 +452,8 @@ describe('lib/client.js', function(){
               url: apiHost + '/serverlogin',
               method: 'POST',
               headers: {
-                'X-Tidepool-Server-Name': 'billy',
-                'X-Tidepool-Server-Secret': 'bob'
+                'x-tidepool-server-name': 'billy',
+                'x-tidepool-server-secret': 'bob'
               },
               rejectUnauthorized: false
             }
@@ -475,8 +475,8 @@ describe('lib/client.js', function(){
               url: apiHost + '/serverlogin',
               method: 'POST',
               headers: {
-                'X-Tidepool-Server-Name': 'billy',
-                'X-Tidepool-Server-Secret': 'bob'
+                'x-tidepool-server-name': 'billy',
+                'x-tidepool-server-secret': 'bob'
               },
               rejectUnauthorized: false
             }
