@@ -85,8 +85,8 @@ describe('lib/client.js', function(){
               url: apiHost + '/login',
               method: 'POST',
               headers: {
-                'X-Tidepool-UserID': 'username',
-                'X-Tidepool-Password': 'password'
+                'x-tidepool-userid': 'username',
+                'x-tidepool-password': 'password'
               },
               rejectUnauthorized: false
             },
@@ -109,8 +109,8 @@ describe('lib/client.js', function(){
               url: apiHost + '/login',
               method: 'POST',
               headers: {
-                'X-Tidepool-UserID': 'username',
-                'X-Tidepool-Password': 'password'
+                'x-tidepool-userid': 'username',
+                'x-tidepool-password': 'password'
               },
               rejectUnauthorized: false
             },
@@ -137,8 +137,8 @@ describe('lib/client.js', function(){
               url: apiHost + '/login',
               method: 'POST',
               headers: {
-                'X-Tidepool-UserID': 'username',
-                'X-Tidepool-Password': 'password'
+                'x-tidepool-userid': 'username',
+                'x-tidepool-password': 'password'
               },
               rejectUnauthorized: false
             },
@@ -162,6 +162,7 @@ describe('lib/client.js', function(){
             {
               url: apiHost + '/private',
               method: 'GET',
+              headers: {},
               rejectUnauthorized: false
             },
             sinon.match.func
@@ -184,6 +185,7 @@ describe('lib/client.js', function(){
             {
               url: apiHost + '/private',
               method: 'GET',
+              headers: {},
               rejectUnauthorized: false
             },
             sinon.match.func
@@ -284,6 +286,7 @@ describe('lib/client.js', function(){
               headers: {
                 'x-tidepool-session-token': serverToken
               },
+              body: user,
               rejectUnauthorized: false
             }
           );
@@ -309,6 +312,7 @@ describe('lib/client.js', function(){
               headers: {
                 'x-tidepool-session-token': serverToken
               },
+              body: user,
               rejectUnauthorized: false
             }
           );
@@ -334,6 +338,7 @@ describe('lib/client.js', function(){
               headers: {
                 'x-tidepool-session-token': serverToken
               },
+              body: user,
               rejectUnauthorized: false
             }
           );
