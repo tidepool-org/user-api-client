@@ -2,7 +2,7 @@ user-api-client
 ===============
 
 # Docs
-This is a library that makes it easier for servers that are talking to the 
+This is a library that makes it easier for servers that are talking to the
 Tidepool User API.
 
 
@@ -10,13 +10,31 @@ Tidepool User API.
 ```require('user-api-client')(config, hostGetter, request);```
 
   * ```config``` -- an object containing configuration parameters
-  * ```hostGetter``` -- an object from hakken
-  * ```request``` -- (optional) -- the result of require('request'). If not supplied a new one will be created.
-  
+  * ```hostGetter``` -- an object with a get() method.  The get() method should return an array of objects that can be
+ passed into url.format() to produce a valid url to talk to.
+  * ```httpClient``` -- (optional) -- the result of require('./httpClient.js')(config). This is primarily exposed to allow
+ for mocking in tests.  If not supplied a new "correct" one will be created.
   * ```members``` -- client and middleware.
 
 ## Client
 
+
+### login
+* ```login (username, password, cb)```
+*Frontend to the API call to log in a user*
+    * ```username``` -- string
+    * ```password``` -- password
+    * ```cb (err, response)```
+        * ```err``` -- null if no error, else an error object
+        * ```response``` -- result from the /user/login api call
+
+### getAnonymousPair
+* ```getAnonymousPair (userid, cb)```
+*Frontend to the API call to retrieve a pair from the user object without storing it*
+    * ```userid``` -- Tidepool-assigned userid
+    * ```cb (err, response)```
+        * ```err``` -- null if no error, else an error object
+        * ```response``` -- result from the /user/private api call
 
 ### checkToken
 * ```checkToken (token, cb)```
@@ -34,15 +52,6 @@ Tidepool User API.
         * ```err``` -- null if no error, else an error object
         * ```response``` -- result from the /user/user api call
 
-### login
-* ```login (username, password, cb)```
-*Frontend to the API call to log in a user*
-    * ```username``` -- string
-    * ```password``` -- password
-    * ```cb (err, response)```
-        * ```err``` -- null if no error, else an error object
-        * ```response``` -- result from the /user/login api call
-
 ### getMetaPair
 * ```getMetaPair (userid, cb)```
 *Frontend to the API call to retrieve the (id, hash) pair called 'meta' from the user/private object*
@@ -50,14 +59,6 @@ Tidepool User API.
     * ```cb (err, response)```
         * ```err``` -- null if no error, else an error object
         * ```response``` -- result from the /user/private/:userid/meta api call
-
-### getAnonymousPair
-* ```getAnonymousPair (userid, cb)```
-*Frontend to the API call to retrieve a pair from the user object without storing it*
-    * ```userid``` -- Tidepool-assigned userid
-    * ```cb (err, response)```
-        * ```err``` -- null if no error, else an error object
-        * ```response``` -- result from the /user/private api call
 
 ### withServerToken
 * ```withServerToken (cb)```
@@ -84,7 +85,8 @@ Returns: middleware that works with express
 
 ### getMetaPair
 * ```getMetaPair (client)```
-*Middleware to retrieve the token pair for meta -- expects a token in a *
-*request header, processes it, and returns information about the token in *
-*the _metapair variable on the request.*
+*Middleware to retrieve the "meta" token pair -- expects _tokendata to be set on the request*
+*object.  The _tokendata object must have a userid field.  The easiest way to make*
+*sure that these are on the request before this middleware runs is to include the checkToken*
+*middleware first.  If all goes well, attaches the _metapair variable on the request.*
     * ```client``` -- client to use when talking to the user-api
