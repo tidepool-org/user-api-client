@@ -85,10 +85,8 @@ describe('lib/client.js', function(){
             {
               url: apiHost + '/login',
               method: 'POST',
-              headers: {
-                'x-tidepool-userid': 'username',
-                'x-tidepool-password': 'password'
-              },
+              headers: {},
+              auth: { user: 'username', pass: 'password' },
               rejectUnauthorized: false
             },
             sinon.match.func
@@ -109,10 +107,8 @@ describe('lib/client.js', function(){
             {
               url: apiHost + '/login',
               method: 'POST',
-              headers: {
-                'x-tidepool-userid': 'username',
-                'x-tidepool-password': 'password'
-              },
+              headers: {},
+              auth: { user: 'username', pass: 'password' },
               rejectUnauthorized: false
             },
             sinon.match.func
@@ -137,10 +133,8 @@ describe('lib/client.js', function(){
             {
               url: apiHost + '/login',
               method: 'POST',
-              headers: {
-                'x-tidepool-userid': 'username',
-                'x-tidepool-password': 'password'
-              },
+              headers: {},
+              auth: { user: 'username', pass: 'password' },
               rejectUnauthorized: false
             },
             sinon.match.func
