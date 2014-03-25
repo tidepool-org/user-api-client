@@ -35,7 +35,8 @@ describe('lib/client.js', function(){
 
     it('should have all methods when provided both serverName and serverSecret', function(){
       var client = clientFactory({ serverName: 'what\'s in a name?', serverSecret: 'wow!' }, hostGetter);
-      var expectedMethods = ['login', 'getAnonymousPair', 'checkToken', 'createUser', 'getMetaPair', 'withServerToken'];
+      var expectedMethods = ['login', 'getAnonymousPair', 'checkToken', 'createUser', 
+        'getMetaPair', 'getUserInfo', 'withServerToken'];
       expect(client).to.have.keys(expectedMethods);
       expectedMethods.forEach(function(methodName){
         expect(client).to.respondTo(methodName);
@@ -402,6 +403,78 @@ describe('lib/client.js', function(){
           expect(request.getCall(1).args[0]).to.deep.equals(
             {
               url: apiHost + '/private/;lkj/meta',
+              method: 'GET',
+              headers: {
+                'x-tidepool-session-token': serverToken
+              },
+              rejectUnauthorized: false
+            }
+          );
+          expectServerTokenCall(0);
+          done();
+        });
+      });
+    });
+
+    describe('getUserInfo', function(){
+      it('should call back with error on error', function(done){
+        var theErr = { message: 'an error has occured' };
+        setupServerTokenCall(0);
+        request.onCall(1).callsArgWith(1, theErr);
+
+        client.getUserInfo(';lkj', function(err, userData){
+          expect(err).to.deep.equal(theErr);
+          expect(userData).to.not.exist;
+          expect(request).to.have.been.calledTwice;
+          expect(request.getCall(1).args[0]).to.deep.equals(
+            {
+              url: apiHost + '/user/;lkj',
+              method: 'GET',
+              headers: {
+                'x-tidepool-session-token': serverToken
+              },
+              rejectUnauthorized: false
+            }
+          );
+          expectServerTokenCall(0);
+          done();
+        });
+      });
+
+      it('should call back with double null on non 200 response code', function(done){
+        setupServerTokenCall(0);
+        request.onCall(1).callsArgWith(1, null, {statusCode: 201}, '{ "howdy": "hi" }');
+
+        client.getUserInfo(';lkj', function(err, userData) {
+          expect(err).to.not.exist;
+          expect(userData).to.not.exist;
+          expect(request).to.have.been.calledTwice;
+          expect(request.getCall(1).args[0]).to.deep.equals(
+            {
+              url: apiHost + '/user/;lkj',
+              method: 'GET',
+              headers: {
+                'x-tidepool-session-token': serverToken
+              },
+              rejectUnauthorized: false
+            }
+          );
+          expectServerTokenCall(0);
+          done();
+        });
+      });
+
+      it('should call back with userdata on 200 response code', function(done){
+        setupServerTokenCall(0);
+        request.onCall(1).callsArgWith(1, null, {statusCode: 200}, '{ "howdy": "hi" }');
+
+        client.getUserInfo(';lkj', function(err, userData) {
+          expect(err).to.not.exist;
+          expect(userData).deep.equals({ howdy: 'hi' });
+          expect(request).to.have.been.calledTwice;
+          expect(request.getCall(1).args[0]).to.deep.equals(
+            {
+              url: apiHost + '/user/;lkj',
               method: 'GET',
               headers: {
                 'x-tidepool-session-token': serverToken
