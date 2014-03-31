@@ -45,7 +45,7 @@ module.exports = (function() {
   }
 
   env.userApiService = process.env.USER_API_SERVICE;
-  if (env.serverSecret == null) {
+  if (env.userApiService == null) {
     throw new Error('Must specify a USER_API_SERVICE in your environment.');
   }
 
