@@ -36,7 +36,7 @@ describe('lib/client.js', function(){
     it('should have all methods when provided both serverName and serverSecret', function(){
       var client = clientFactory({ serverName: 'what\'s in a name?', serverSecret: 'wow!' }, hostGetter);
       var expectedMethods = ['login', 'getAnonymousPair', 'checkToken', 'createUser', 
-        'getMetaPair', 'getUserInfo', 'withServerToken'];
+        'getMetaPair', 'getUserInfo', 'updateUser', 'withServerToken'];
       expect(client).to.have.keys(expectedMethods);
       expectedMethods.forEach(function(methodName){
         expect(client).to.respondTo(methodName);
@@ -480,6 +480,32 @@ describe('lib/client.js', function(){
                 'x-tidepool-session-token': serverToken
               },
               rejectUnauthorized: false
+            }
+          );
+          expectServerTokenCall(0);
+          done();
+        });
+      });
+    });
+
+    describe('updateUser', function(){
+      it('should call back with userdata on 200 response code', function(done){
+        setupServerTokenCall(0);
+        request.onCall(1).callsArgWith(1, null, {statusCode: 200}, { "howdy": "hi" });
+
+        client.updateUser(';lkj', {field: 'value'}, function(err, userData) {
+          expect(err).to.not.exist;
+          expect(userData).deep.equals({ howdy: 'hi' });
+          expect(request).to.have.been.calledTwice;
+          expect(request.getCall(1).args[0]).to.deep.equals(
+            {
+              url: apiHost + '/user/;lkj',
+              method: 'PUT',
+              headers: {
+                'x-tidepool-session-token': serverToken
+              },
+              rejectUnauthorized: false,
+              json: {updates: {field: 'value'}}
             }
           );
           expectServerTokenCall(0);
