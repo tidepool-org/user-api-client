@@ -1,6 +1,6 @@
 {
   "name": "user-api-client",
-  "version": "0.1.8",
+  "version": "0.2.0g",
   "description": "An npm library to make it easy to use the user-api.",
   "keywords": [
     "tidepool, user-api"
@@ -27,6 +27,7 @@
   "main": "index.js",
   "repository": "https://github.com/tidepool-org/user-api-client.git",
   "dependencies": {
+    "amdefine": "0.1.0",
     "amoeba": "0.0.8",
     "bunyan": "0.22.1",
     "lodash": "2.4.1",
