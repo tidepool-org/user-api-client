@@ -27,7 +27,6 @@
   "main": "index.js",
   "repository": "https://github.com/tidepool-org/user-api-client.git",
   "dependencies": {
-    "amdefine": "0.1.0",
     "amoeba": "0.0.8",
     "bunyan": "0.22.1",
     "lodash": "2.4.1",
