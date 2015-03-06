@@ -33,7 +33,7 @@
     "request": "2.34.0"
   },
   "devDependencies": {
-    "express": "3.4.8",
+    "express": "4.12.2",
     "mocha": "1.17.1",
     "restify": "2.8.5",
     "salinity": "0.0.3",
