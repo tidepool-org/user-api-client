@@ -1,6 +1,6 @@
 {
   "name": "user-api-client",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "description": "An npm library to make it easy to use the user-api.",
   "keywords": [
     "tidepool, user-api"
@@ -38,5 +38,6 @@
     "restify": "2.8.5",
     "salinity": "0.0.7",
     "supertest": "0.15.0"
-  }
+  },
+  "scripts": {}
 }
