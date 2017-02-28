@@ -52,14 +52,6 @@ Tidepool User API.
         * ```err``` -- null if no error, else an error object
         * ```response``` -- result from the /user/user api call
 
-### getMetaPair
-* ```getMetaPair (userid, cb)```
-*Frontend to the API call to retrieve the (id, hash) pair called 'meta' from the user/private object*
-    * ```userid``` -- Tidepool-assigned userid
-    * ```cb (err, response)```
-        * ```err``` -- null if no error, else an error object
-        * ```response``` -- result from the /user/private/:userid/meta api call
-
 ### withServerToken
 * ```withServerToken (cb)```
 *Calls CB with a valid server token, iff one can be retrieved*
@@ -81,12 +73,4 @@ Returns: middleware that works with express
 * ```checkToken (client)```
 *Middleware to process the session token -- expects a token in a request header, processes it, and*
 *returns information about the token in the _tokendata variable on the request.*
-    * ```client``` -- client to use when talking to the user-api
-
-### getMetaPair
-* ```getMetaPair (client)```
-*Middleware to retrieve the "meta" token pair -- expects _tokendata to be set on the request*
-*object.  The _tokendata object must have a userid field.  The easiest way to make*
-*sure that these are on the request before this middleware runs is to include the checkToken*
-*middleware first.  If all goes well, attaches the _metapair variable on the request.*
     * ```client``` -- client to use when talking to the user-api
