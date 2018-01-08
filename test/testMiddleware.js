@@ -134,6 +134,29 @@ describe('middleware.js', function () {
           }
         );
       });
+
+      it('should get 200 and pass through _tokendata and _sessionToken when things are good with access token', function (done) {
+        var userData = { some: 'access token data' };
+        sinon.stub(userApiClient, 'checkToken').callsArgWith(1, null, userData);
+        agent
+          .get('/')
+          .set('Authorization', 'Bearer 1234')
+          .expect(
+          250,
+          {
+            userData: userData,
+            token: '1234'
+          },
+          function (err) {
+            if (errorOnServer != null) {
+              throw errorOnServer;
+            }
+            expect(userApiClient.checkToken).to.have.been.calledOnce;
+            expect(userApiClient.checkToken).to.have.been.calledWith('1234', sinon.match.func);
+            done(err);
+          }
+        );
+      });
     }
 
     describe('restify', function () {
