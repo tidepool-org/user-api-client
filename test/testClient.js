@@ -35,7 +35,7 @@ describe('lib/client.js', function(){
 
     it('should have all methods when provided both serverName and serverSecret', function(){
       var client = clientFactory({ serverName: 'what\'s in a name?', serverSecret: 'wow!' }, hostGetter);
-      var expectedMethods = ['login', 'getAnonymousPair', 'checkToken', 'createUser',
+      var expectedMethods = ['login', 'getAnonymousPair', 'checkToken', 'checkTokenForScopes', 'createUser',
         'getUserInfo', 'updateUser', 'withServerToken'];
       expect(client).to.have.keys(expectedMethods);
       expectedMethods.forEach(function(methodName){

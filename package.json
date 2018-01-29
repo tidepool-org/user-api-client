@@ -28,9 +28,9 @@
   "repository": "https://github.com/tidepool-org/user-api-client.git",
   "dependencies": {
     "amoeba": "0.2.1",
-    "bunyan": "1.4.0",
-    "lodash": "3.4.0",
-    "request": "2.53.0"
+    "bunyan": "1.8.12",
+    "lodash": "4.17.4",
+    "request": "2.83.0"
   },
   "devDependencies": {
     "express": "4.12.2",
