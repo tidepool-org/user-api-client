@@ -25,6 +25,12 @@ var sinon = salinity.sinon;
 var middleware = require('../lib/middleware.js');
 
 describe('middleware.js', function () {
+  it('should have a constant for the tidepool internal scope', function () {
+    expect(middleware.TidepoolInternalScope).to.equal('tidepool:internal');
+  });
+  it('should have a constant for the tidepool public scope', function () {
+    expect(middleware.TidepoolPublicScope).to.equal('tidepool:public');
+  });
   describe('expressify', function () {
     it('should call the callback on next(\'route\')', function () {
       var expressified = middleware.expressify(function (req, res, next) {
