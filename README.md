@@ -44,6 +44,15 @@ Tidepool User API.
         * ```err``` -- null if no error, else an object
         * ```response``` -- result from the /user/token api call
 
+### checkTokenForScopes
+* ```checkTokenForScopes (token, requiredScopes, cb)```
+*Frontend to the API call to check the validity of a server or user token*
+    * ```token``` -- the server token to be checked
+    * ```requiredScopes``` -- comma seperated string of scope(s) required to acces the API
+    * ```cb (err, response)```
+        * ```err``` -- null if no error, else an object
+        * ```response``` -- result from the /user/token api call
+
 ### createUser
 * ```createUser (userObj, cb)```
 *Frontend to the API call to create a user*
@@ -70,7 +79,8 @@ Tidepool User API.
 Returns: middleware that works with express
 
 ### checkToken
-* ```checkToken (client)```
+* ```checkToken(client, requiredScopes)```
 *Middleware to process the session token -- expects a token in a request header, processes it, and*
 *returns information about the token in the _tokendata variable on the request.*
     * ```client``` -- client to use when talking to the user-api
+    * ```requiredScopes``` -- comma seperated string of scope(s) required to acces the API
