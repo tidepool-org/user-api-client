@@ -55,13 +55,18 @@ describe('middleware.js', function () {
   });
 
   describe('checkToken', function () {
-    var userApiClient = mockableObject.make('checkToken', 'checkTokenForScopes');
+    var userApiClient = mockableObject.make('getServerSecret', 'checkTokenForScopes');
     var agent;
     var errorOnServer = null;
     var tidepoolPublicScope = 'tidepool:public';
+    var legacyServiceSecretHeaderKey = 'x-tidepool-legacy-service-secret';
+    var authorizationHeader = 'authorization';
+    var bearerToken = 'Bearer 1234';
+    var serverSecret = 'testing that we are secret';
 
     function checkTokenTests() {
       it('should return 401 if no token is set', function (done) {
+        sinon.stub(userApiClient, 'getServerSecret');
         agent
           .get('/')
           .expect(401)
@@ -75,11 +80,12 @@ describe('middleware.js', function () {
       });
 
       it('should return 500 on some error', function (done) {
-        sinon.stub(userApiClient, 'checkToken').callsArgWith(1, { message: 'something' });
+        //sinon.stub(userApiClient, 'getServerSecret').callsArgWith(1, { 'something' });
+        sinon.stub(userApiClient, 'getServerSecret');
         sinon.stub(userApiClient, 'checkTokenForScopes').callsArgWith(2, { message: 'something' }, tidepoolPublicScope);
         agent
           .get('/')
-          .set('x-tidepool-session-token', '1234')
+          .set(authorizationHeader, bearerToken)
           .expect(500)
           .end(
           function (err, res) {
@@ -91,12 +97,12 @@ describe('middleware.js', function () {
       });
 
       it('should return the statusCode from the error if one is provided', function (done) {
-        sinon.stub(userApiClient, 'checkToken').callsArgWith(1, { message: 'something', statusCode: 570 });
-        sinon.stub(userApiClient, 'checkTokenForScopes').callsArgWith(2, { message: 'something' }, tidepoolPublicScope);
+        sinon.stub(userApiClient, 'getServerSecret');
+        sinon.stub(userApiClient, 'checkTokenForScopes').callsArgWith(2, { message: 'something', statusCode: 911 }, tidepoolPublicScope);
         agent
           .get('/')
-          .set('x-tidepool-session-token', '1234')
-          .expect(570)
+          .set(authorizationHeader, 'ssx')
+          .expect(911)
           .end(
           function (err, res) {
             if (errorOnServer != null) {
@@ -107,11 +113,11 @@ describe('middleware.js', function () {
       });
 
       it('should return 401 when no error and no user info', function (done) {
-        sinon.stub(userApiClient, 'checkToken').callsArgWith(1, null);
+        sinon.stub(userApiClient, 'getServerSecret');
         sinon.stub(userApiClient, 'checkTokenForScopes').callsArgWith(2, null, tidepoolPublicScope);
         agent
           .get('/')
-          .set('x-tidepool-session-token', '1234')
+          .set(legacyServiceSecretHeaderKey, 'wrong key')
           .expect(401)
           .end(
           function (err, res) {
@@ -124,47 +130,47 @@ describe('middleware.js', function () {
 
       it('should get 200 and pass through _tokendata and _sessionToken when things are good', function (done) {
         var userData = { some: 'token data' };
-        sinon.stub(userApiClient, 'checkToken').callsArgWith(1, null, userData);
+        sinon.stub(userApiClient, 'getServerSecret').returns(serverSecret);
         sinon.stub(userApiClient, 'checkTokenForScopes').callsArgWith(2, null, userData, tidepoolPublicScope);
         agent
           .get('/')
-          .set('x-tidepool-session-token', '1234')
+          .set(authorizationHeader, bearerToken)
           .expect(
-          250,
+          200,
           {
             userData: userData,
-            token: '1234'
+            token: bearerToken
           },
           function (err) {
             if (errorOnServer != null) {
               throw errorOnServer;
             }
-            expect(userApiClient.checkToken).to.have.been.calledOnce;
-            expect(userApiClient.checkToken).to.have.been.calledWith('1234', sinon.match.func);
+            expect(userApiClient.getServerSecret).to.have.been.calledOnce;
+            expect(userApiClient.checkTokenForScopes).to.have.been.calledOnce;
+            expect(userApiClient.checkTokenForScopes).to.have.been.calledWith(bearerToken, tidepoolPublicScope, sinon.match.func);
             done(err);
           }
           );
       });
 
-      it('should get 200 and pass through _tokendata and _sessionToken when things are good with access token', function (done) {
+      it('should get 200 and pass through _tokendata when things are good with server secret', function (done) {
         var userData = { some: 'access token data' };
-        sinon.stub(userApiClient, 'checkToken').callsArgWith(1, null, userData);
+        sinon.stub(userApiClient, 'getServerSecret').returns(serverSecret);
         sinon.stub(userApiClient, 'checkTokenForScopes').callsArgWith(2, null, userData, tidepoolPublicScope);
         agent
           .get('/')
-          .set('Authorization', 'Bearer 1234')
+          .set(legacyServiceSecretHeaderKey, serverSecret)
           .expect(
-          250,
+          200,
           {
-            userData: userData,
-            token: '1234'
+            userData: { userid: legacyServiceSecretHeaderKey },
           },
           function (err) {
             if (errorOnServer != null) {
               throw errorOnServer;
             }
-            expect(userApiClient.checkTokenForScopes).to.have.been.calledOnce;
-            expect(userApiClient.checkTokenForScopes).to.have.been.calledWith('1234', tidepoolPublicScope, sinon.match.func);
+            expect(userApiClient.getServerSecret).to.have.been.calledOnce;
+            expect(userApiClient.checkTokenForScopes).to.have.not.been.called;
             done(err);
           }
           );
@@ -182,7 +188,7 @@ describe('middleware.js', function () {
         );
 
         server.get('/', middleware.checkToken(userApiClient, tidepoolPublicScope), function (req, res, next) {
-          res.send(250, {
+          res.send(200, {
             userData: req._tokendata,
             token: req._sessionToken
           });
@@ -220,7 +226,7 @@ describe('middleware.js', function () {
           '/',
           middleware.expressify(middleware.checkToken(userApiClient, tidepoolPublicScope)),
           function (req, res, next) {
-            res.status(250).send({
+            res.status(200).send({
               userData: req._tokendata,
               token: req._sessionToken
             });
