@@ -315,6 +315,11 @@ describe('lib/client.js', function () {
         });
       });
     });
-
+    describe('getServerSecret', function () {
+      it('should call back with error on error', function (done) {
+        expect(client.getServerSecret()).to.equal('bob');
+        done();
+      });
+    });
   });
 });
