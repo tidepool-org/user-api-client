@@ -185,7 +185,8 @@ describe('middleware.js', function () {
           '/',
           middleware.expressify(middleware.checkToken(userApiClient)),
           function (req, res, next) {
-            res.send(250, {
+            res.status(250);
+            res.send({
               userData: req._tokendata,
               token: req._sessionToken
             });
