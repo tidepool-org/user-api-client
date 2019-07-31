@@ -36,7 +36,7 @@ describe('lib/client.js', function(){
     it('should have all methods when provided both serverName and serverSecret', function(){
       var client = clientFactory({ serverName: 'what\'s in a name?', serverSecret: 'wow!' }, hostGetter);
       var expectedMethods = ['login', 'getAnonymousPair', 'checkToken', 'createUser',
-        'getUserInfo', 'updateUser', 'withServerToken'];
+        'getUsersWithIds', 'getUserInfo', 'updateUser', 'withServerToken'];
       expect(client).to.have.keys(expectedMethods);
       expectedMethods.forEach(function(methodName){
         expect(client).to.respondTo(methodName);
@@ -341,6 +341,37 @@ describe('lib/client.js', function(){
           expectServerTokenCall(0);
           done();
         });
+      });
+    });
+
+    describe('getUsersWithIds', function(){
+      it('should succeed when invoked correctly', function(done){
+        var theErr = { message: 'an error has occured' };
+        setupServerTokenCall(0);
+        request.onCall(1).callsArgWith(1, theErr);
+
+        client.getUsersWithIds(['plkj','abc123'], function(err, userData){
+          expect(err).to.deep.equal(theErr);
+          expect(userData).to.not.exist;
+          expect(request).to.have.been.calledTwice;
+          expect(request.getCall(1).args[0]).to.deep.equals(
+            {
+              url: apiHost + '/users?id=plkj,abc123',
+              method: 'GET',
+              headers: {
+                'x-tidepool-session-token': serverToken
+              },
+              rejectUnauthorized: false
+            }
+          );
+          expectServerTokenCall(0);
+          done();
+        });
+      });
+
+      it('should fail when passed a non-array argument', function(done){
+        expect(() => client.getUsersWithIds('plkj,abc123', null)).to.throw();
+        done();
       });
     });
 

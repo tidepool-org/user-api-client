@@ -1,3 +1,4 @@
 --recursive
 --timeout 0
---reporter=tap
+--reporter=spec
+--check-leaks
