@@ -33,7 +33,7 @@
   "dependencies": {
     "amoeba": "0.8.0",
     "bunyan": "1.8.12",
-    "lodash": "4.17.15",
+    "lodash": "4.17.19",
     "request": "2.88.0"
   },
   "devDependencies": {
