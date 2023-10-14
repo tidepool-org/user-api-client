@@ -1,5 +1,9 @@
 // == BSD2 LICENSE ==
 
+// jshint -W030
+
+'use strict';
+
 var salinity = require('salinity');
 var expect = salinity.expect;
 var sinon = salinity.sinon;
@@ -59,16 +63,15 @@ describe('lib/client.js', function(){
     }
 
     function expectServerTokenCall(callNum) {
-      expect(request.getCall(callNum).args[0]).to.deep.equals(
-        {
+      expect(request.getCall(callNum)).to.have.been.calledWith(
+        sinon.match({
           url: apiHost + '/serverlogin',
           method: 'POST',
           headers: {
             'x-tidepool-server-name': 'billy',
             'x-tidepool-server-secret': 'bob'
           },
-          rejectUnauthorized: false
-        }
+        })
       );
     }
 
@@ -83,14 +86,12 @@ describe('lib/client.js', function(){
           expect(userData).to.not.exist;
           expect(request).to.have.been.calledOnce;
           expect(request).to.have.been.calledWith(
-            {
+            sinon.match({
               url: apiHost + '/login',
               method: 'POST',
               headers: {},
               auth: { user: 'username', pass: 'password' },
-              rejectUnauthorized: false
-            },
-            sinon.match.func
+            })
           );
           done();
         });
@@ -105,14 +106,12 @@ describe('lib/client.js', function(){
           expect(userData).to.not.exist;
           expect(request).to.have.been.calledOnce;
           expect(request).to.have.been.calledWith(
-            {
+            sinon.match({
               url: apiHost + '/login',
               method: 'POST',
               headers: {},
               auth: { user: 'username', pass: 'password' },
-              rejectUnauthorized: false
-            },
-            sinon.match.func
+            })
           );
           done();
         });
@@ -131,14 +130,12 @@ describe('lib/client.js', function(){
           expect(userData).to.deep.equals({ howdy: 'hi' });
           expect(request).to.have.been.calledOnce;
           expect(request).to.have.been.calledWith(
-            {
+            sinon.match({
               url: apiHost + '/login',
               method: 'POST',
               headers: {},
               auth: { user: 'username', pass: 'password' },
-              rejectUnauthorized: false
-            },
-            sinon.match.func
+            })
           );
           done();
         });
@@ -155,13 +152,11 @@ describe('lib/client.js', function(){
           expect(pair).to.not.exist;
           expect(request).to.have.been.calledOnce;
           expect(request).to.have.been.calledWith(
-            {
+            sinon.match({
               url: apiHost + '/private',
               method: 'GET',
               headers: {},
-              rejectUnauthorized: false
-            },
-            sinon.match.func
+            })
           );
           done();
         });
@@ -178,13 +173,11 @@ describe('lib/client.js', function(){
           expect(pair).to.deep.equals({ howdy: 'hi' });
           expect(request).to.have.been.calledOnce;
           expect(request).to.have.been.calledWith(
-            {
+            sinon.match({
               url: apiHost + '/private',
               method: 'GET',
               headers: {},
-              rejectUnauthorized: false
-            },
-            sinon.match.func
+            })
           );
           done();
         });
@@ -201,15 +194,14 @@ describe('lib/client.js', function(){
           expect(err).to.deep.equal(theErr);
           expect(userData).to.not.exist;
           expect(request).to.have.been.calledTwice;
-          expect(request.getCall(1).args[0]).to.deep.equals(
-            {
+          expect(request.getCall(1)).to.have.been.calledWith(
+            sinon.match({
               url: apiHost + '/token/;lkj',
               method: 'GET',
               headers: {
                 'x-tidepool-session-token': serverToken
               },
-              rejectUnauthorized: false
-            }
+            })
           );
           expectServerTokenCall(0);
           done();
@@ -224,15 +216,14 @@ describe('lib/client.js', function(){
           expect(err).to.not.exist;
           expect(userData).to.not.exist;
           expect(request).to.have.been.calledTwice;
-          expect(request.getCall(1).args[0]).to.deep.equals(
-            {
+          expect(request.getCall(1)).to.have.been.calledWith(
+            sinon.match({
               url: apiHost + '/token/;lkj',
               method: 'GET',
               headers: {
                 'x-tidepool-session-token': serverToken
               },
-              rejectUnauthorized: false
-            }
+            })
           );
           expectServerTokenCall(0);
           done();
@@ -247,15 +238,14 @@ describe('lib/client.js', function(){
           expect(err).to.not.exist;
           expect(userData).deep.equals({ howdy: 'hi' });
           expect(request).to.have.been.calledTwice;
-          expect(request.getCall(1).args[0]).to.deep.equals(
-            {
+          expect(request.getCall(1)).to.have.been.calledWith(
+            sinon.match({
               url: apiHost + '/token/;lkj',
               method: 'GET',
               headers: {
                 'x-tidepool-session-token': serverToken
               },
-              rejectUnauthorized: false
-            }
+            })
           );
           expectServerTokenCall(0);
           done();
@@ -275,16 +265,15 @@ describe('lib/client.js', function(){
           expect(err).to.deep.equal(theErr);
           expect(userData).to.not.exist;
           expect(request).to.have.been.calledTwice;
-          expect(request.getCall(1).args[0]).to.deep.equals(
-            {
+          expect(request.getCall(1)).to.have.been.calledWith(
+            sinon.match({
               url: apiHost + '/user',
               method: 'POST',
               headers: {
                 'x-tidepool-session-token': serverToken
               },
               body: user,
-              rejectUnauthorized: false
-            }
+            })
           );
           expectServerTokenCall(0);
           done();
@@ -301,16 +290,15 @@ describe('lib/client.js', function(){
           expect(err).to.not.exist;
           expect(userData).to.not.exist;
           expect(request).to.have.been.calledTwice;
-          expect(request.getCall(1).args[0]).to.deep.equals(
-            {
+          expect(request.getCall(1)).to.have.been.calledWith(
+            sinon.match({
               url: apiHost + '/user',
               method: 'POST',
               headers: {
                 'x-tidepool-session-token': serverToken
               },
               body: user,
-              rejectUnauthorized: false
-            }
+            })
           );
           expectServerTokenCall(0);
           done();
@@ -327,16 +315,15 @@ describe('lib/client.js', function(){
           expect(err).to.not.exist;
           expect(userData).deep.equals({ howdy: 'hi' });
           expect(request).to.have.been.calledTwice;
-          expect(request.getCall(1).args[0]).to.deep.equals(
-            {
+          expect(request.getCall(1)).to.have.been.calledWith(
+            sinon.match({
               url: apiHost + '/user',
               method: 'POST',
               headers: {
                 'x-tidepool-session-token': serverToken
               },
               body: user,
-              rejectUnauthorized: false
-            }
+            })
           );
           expectServerTokenCall(0);
           done();
@@ -354,15 +341,14 @@ describe('lib/client.js', function(){
           expect(err).to.deep.equal(theErr);
           expect(userData).to.not.exist;
           expect(request).to.have.been.calledTwice;
-          expect(request.getCall(1).args[0]).to.deep.equals(
-            {
+          expect(request.getCall(1)).to.have.been.calledWith(
+            sinon.match({
               url: apiHost + '/users?id=plkj,abc123',
               method: 'GET',
               headers: {
                 'x-tidepool-session-token': serverToken
               },
-              rejectUnauthorized: false
-            }
+            })
           );
           expectServerTokenCall(0);
           done();
@@ -385,15 +371,14 @@ describe('lib/client.js', function(){
           expect(err).to.deep.equal(theErr);
           expect(userData).to.not.exist;
           expect(request).to.have.been.calledTwice;
-          expect(request.getCall(1).args[0]).to.deep.equals(
-            {
+          expect(request.getCall(1)).to.have.been.calledWith(
+            sinon.match({
               url: apiHost + '/user/;lkj',
               method: 'GET',
               headers: {
                 'x-tidepool-session-token': serverToken
               },
-              rejectUnauthorized: false
-            }
+            })
           );
           expectServerTokenCall(0);
           done();
@@ -408,15 +393,14 @@ describe('lib/client.js', function(){
           expect(err).to.not.exist;
           expect(userData).to.not.exist;
           expect(request).to.have.been.calledTwice;
-          expect(request.getCall(1).args[0]).to.deep.equals(
-            {
+          expect(request.getCall(1)).to.have.been.calledWith(
+            sinon.match({
               url: apiHost + '/user/;lkj',
               method: 'GET',
               headers: {
                 'x-tidepool-session-token': serverToken
               },
-              rejectUnauthorized: false
-            }
+            })
           );
           expectServerTokenCall(0);
           done();
@@ -431,15 +415,14 @@ describe('lib/client.js', function(){
           expect(err).to.not.exist;
           expect(userData).deep.equals({ howdy: 'hi' });
           expect(request).to.have.been.calledTwice;
-          expect(request.getCall(1).args[0]).to.deep.equals(
-            {
+          expect(request.getCall(1)).to.have.been.calledWith(
+            sinon.match({
               url: apiHost + '/user/;lkj',
               method: 'GET',
               headers: {
                 'x-tidepool-session-token': serverToken
               },
-              rejectUnauthorized: false
-            }
+            })
           );
           expectServerTokenCall(0);
           done();
@@ -450,22 +433,21 @@ describe('lib/client.js', function(){
     describe('updateUser', function(){
       it('should call back with userdata on 200 response code', function(done){
         setupServerTokenCall(0);
-        request.onCall(1).callsArgWith(1, null, {statusCode: 200}, { "howdy": "hi" });
+        request.onCall(1).callsArgWith(1, null, {statusCode: 200}, { 'howdy': 'hi' });
 
         client.updateUser(';lkj', {field: 'value'}, function(err, userData) {
           expect(err).to.not.exist;
           expect(userData).deep.equals({ howdy: 'hi' });
           expect(request).to.have.been.calledTwice;
-          expect(request.getCall(1).args[0]).to.deep.equals(
-            {
+          expect(request.getCall(1)).to.have.been.calledWith(
+            sinon.match({
               url: apiHost + '/user/;lkj',
               method: 'PUT',
               headers: {
                 'x-tidepool-session-token': serverToken
               },
-              rejectUnauthorized: false,
-              json: {updates: {field: 'value'}}
-            }
+              body: JSON.stringify({updates: {field: 'value'}}),
+            })
           );
           expectServerTokenCall(0);
           done();
@@ -483,15 +465,14 @@ describe('lib/client.js', function(){
           expect(token).to.not.exist;
           expect(request).to.have.been.calledOnce;
           expect(request).to.have.been.calledWith(
-            {
+            sinon.match({
               url: apiHost + '/serverlogin',
               method: 'POST',
               headers: {
                 'x-tidepool-server-name': 'billy',
                 'x-tidepool-server-secret': 'bob'
               },
-              rejectUnauthorized: false
-            }
+            })
           );
           done();
         });
@@ -500,47 +481,31 @@ describe('lib/client.js', function(){
       it('should call back with error on non 200 response code', function(done){
         request.callsArgWith(1, null, {statusCode: 201, headers: {'x-tidepool-session-token': serverToken}}, '{ "howdy": "hi" }');
 
-        client.withServerToken(function(err, userData) {
-          expect(err).to.have.property('statusCode').that.equals(503);
-          expect(err).to.have.property('message');
-          expect(userData).to.not.exist;
-          expect(request).to.have.been.calledOnce;
-          expect(request).to.have.been.calledWith(
-            {
-              url: apiHost + '/serverlogin',
-              method: 'POST',
-              headers: {
-                'x-tidepool-server-name': 'billy',
-                'x-tidepool-server-secret': 'bob'
-              },
-              rejectUnauthorized: false
-            }
-          );
+        try {
+          client.withServerToken(function(err, userData) {
+            expect.fail('callback invoked');
+          });
+          expect.fail('function returned');
+        } catch(err) {
+          expect(err).to.be.instanceOf(Error);
+          expect(err.message).to.equal('Bad status on communications with user-api');
           done();
-        });
+        }
       });
 
       it('should call back with error on 200 response code and no token header', function(done){
         request.callsArgWith(1, null, {statusCode: 200, headers: {}}, '{ "howdy": "hi" }');
 
-        client.withServerToken(function(err, userData) {
-          expect(err).to.have.property('statusCode').that.equals(503);
-          expect(err).to.have.property('message');
-          expect(userData).to.not.exist;
-          expect(request).to.have.been.calledOnce;
-          expect(request).to.have.been.calledWith(
-            {
-              url: apiHost + '/serverlogin',
-              method: 'POST',
-              headers: {
-                'x-tidepool-server-name': 'billy',
-                'x-tidepool-server-secret': 'bob'
-              },
-              rejectUnauthorized: false
-            }
-          );
+        try {
+          client.withServerToken(function(err, userData) {
+            expect.fail('callback invoked');
+          });
+          expect.fail('function returned');
+        } catch(err) {
+          expect(err).to.be.instanceOf(Error);
+          expect(err.message).to.equal('Unable to initiate communications with user-api');
           done();
-        });
+        }
       });
 
       it('should call back with serverToken on 200 response code', function(done){

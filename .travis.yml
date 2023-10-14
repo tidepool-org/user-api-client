@@ -1,23 +1,13 @@
-sudo: false
+dist: jammy
 
 language: node_js
 
 node_js:
-  - 10.14.2
-  - node
-
-cache:
-  yarn: true
-  directories:
-    - node_modules
-
-before_install:
-  - curl -o- -L https://yarnpkg.com/install.sh | bash -s -- --version 1.17.3
-  - export PATH="$HOME/.yarn/bin:$PATH"
+  - 20.9.0
 
 install:
-  - yarn install --frozen-lockfile
+  - npm install
 
 script:
-  - yarn lint
-  - yarn test
+  - npm run lint
+  - npm run test
