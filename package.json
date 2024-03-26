@@ -34,17 +34,20 @@
     "url": "git+https://github.com/tidepool-org/user-api-client.git"
   },
   "dependencies": {
-    "amoeba": "1.2.1-alpha.4",
-    "axios": "^1.5.1",
-    "bunyan": "1.8.12",
+    "amoeba": "1.2.2",
+    "axios": "^1.6.8",
+    "bunyan": "1.8.15",
     "lodash": "4.17.21"
   },
   "devDependencies": {
     "express": "^4.18.2",
     "jshint": "^2.12.0",
-    "mocha": "^10.2.0",
+    "mocha": "^10.3.0",
     "restify": "^11.1.0",
-    "salinity": "0.0.9-alpha.4",
+    "salinity": "0.0.9",
     "supertest": "4.0.2"
+  },
+  "overrides": {
+    "serialize-javascript@>=6.0.0 <6.0.2": "6.0.2"
   }
 }
