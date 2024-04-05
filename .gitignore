@@ -18,3 +18,7 @@ node_modules
 .DS_Store
 .idea
 *.iml
+
+.vscode/
+*.envrc
+*.env
