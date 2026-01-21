@@ -37,7 +37,7 @@
     "amoeba": "1.2.4",
     "axios": "^1.6.8",
     "bunyan": "1.8.15",
-    "lodash": "4.17.21"
+    "lodash": "4.17.23"
   },
   "devDependencies": {
     "express": "^4.18.2",
