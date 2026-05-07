@@ -1,6 +1,6 @@
 {
   "name": "user-api-client",
-  "version": "0.5.3",
+  "version": "0.5.4",
   "description": "An npm library to make it easy to use the user-api.",
   "keywords": [
     "tidepool, user-api"
@@ -34,8 +34,8 @@
     "url": "git+https://github.com/tidepool-org/user-api-client.git"
   },
   "dependencies": {
-    "amoeba": "1.2.4",
-    "axios": "^1.6.8",
+    "amoeba": "github:tidepool-org/amoeba#jp-vanta-back-3153",
+    "axios": "^1.16.0",
     "bunyan": "1.8.15",
     "lodash": "4.17.21"
   },
@@ -45,7 +45,7 @@
     "mocha": "^10.3.0",
     "restify": "^11.1.0",
     "salinity": "0.0.11",
-    "supertest": "4.0.2"
+    "supertest": "^7.2.2"
   },
   "overrides": {
     "serialize-javascript@>=6.0.0 <6.0.2": "6.0.2"
