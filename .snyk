@@ -1,9 +1,19 @@
 ignore:
+  SNYK-JS-FINDMYWAY-8055229:
+    - '*':
+        reason: >-
+          Development dependency via restify.
+        expires: 2027-03-31
   SNYK-JS-INFLIGHT-6095116:
     - '*':
         reason: >-
           No remediation available. Production dependency via bunyan, but only
           for the 'rotating-file' logger, which is not in use. Development
           dependency via mocha, grunt, jshint, and others.
-        expires: 2025-03-31
+        expires: 2027-03-31
+  SNYK-JS-SEND-7926862:
+    - '*':
+        reason: >-
+          Development dependency via restify.
+        expires: 2027-03-31
 patch: {}
